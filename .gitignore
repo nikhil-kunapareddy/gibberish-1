@@ -1,0 +1,29 @@
+# Data and trained artifacts
+data/
+checkpoints/
+runs/
+*.pt
+*.ckpt
+*.safetensors
+*.bin
+*.npy
+*.gguf
+
+# Tokenizer artifacts
+*.model
+*.vocab
+
+# Logs
+wandb/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.env
+
+# macOS
+.DS_Store
