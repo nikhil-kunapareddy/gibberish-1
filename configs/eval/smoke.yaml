@@ -1,0 +1,24 @@
+# Smoke evaluation: validation perplexity + the offline stub judge.
+#
+# The stub judge returns fixed scores and never leaves the machine. To use a
+# real judge: `TINYSTORIES_JUDGE=api python scripts/evaluate.py ...` with
+# credentials in the environment and the `anthropic` package installed.
+name: eval-smoke
+data_dir: data/smoke
+checkpoint: runs/pretrain-smoke/ckpt_best.pt
+out_dir: runs/eval-smoke
+
+batch_size: 8
+block_size: 256
+max_batches: 20
+
+judge: stub
+judge_model: claude-opus-5
+judge_prompts: 5
+judge_max_new_tokens: 64
+judge_temperature: 0.8
+judge_top_p: 0.95
+
+device: auto
+amp: auto
+seed: 1337

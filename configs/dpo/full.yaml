@@ -1,0 +1,41 @@
+# Full DPO run. Still mechanics-only at this model scale -- see the README.
+
+name: dpo-full
+data_dir: data/full
+out_dir: runs/dpo-full
+init_from: runs/sft-full/ckpt_best.pt
+sampler_ckpt: runs/pretrain-full/ckpt_early.pt
+pairs_file: runs/dpo-full/dpo_pairs.jsonl
+
+num_pairs: 4000
+pair_prompt_tokens: 32
+pair_max_new_tokens: 64
+pair_temperature: 1.5
+pair_top_k: 0
+
+beta: 0.1
+label_smoothing: 0.0
+
+max_steps: 500
+batch_size: 8
+max_seq_len: 512
+grad_accum_steps: 1
+
+lr: 0.000005
+min_lr_ratio: 1.0
+warmup_steps: 2
+weight_decay: 0.0
+grad_clip: 1.0
+
+log_interval: 20
+eval_interval: 100
+eval_iters: 5
+ckpt_interval: 250
+keep_last_k: 1
+
+device: auto
+amp: auto
+compile: false
+seed: 1337
+resume: ""
+wandb: false

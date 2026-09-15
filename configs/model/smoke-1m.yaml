@@ -1,0 +1,10 @@
+# Smoke-test model: small enough that 200 steps on a CPU is a minute, not an hour.
+# ~1.5M params total, ~0.4M non-embedding.
+name: smoke-1m
+vocab_size: 8192
+n_layer: 2
+n_head: 4
+d_model: 128
+block_size: 256
+dropout: 0.0
+tie_embeddings: true
