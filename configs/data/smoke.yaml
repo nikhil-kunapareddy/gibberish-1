@@ -1,0 +1,15 @@
+# Smoke data: 5k stories, 8k-vocab BPE. Downloads ~24MB, not 1.9GB.
+name: smoke
+data_dir: data
+out_dir: data/smoke
+dataset: roneneldan/TinyStories
+instruct_dataset: roneneldan/TinyStories-Instruct
+source_file: TinyStories-valid.txt
+instruct_source_file: TinyStories-Instruct-valid.txt
+max_download_bytes: 24000000
+num_stories: 5000
+num_instruct_examples: 2000
+tokenizer_train_stories: 5000
+vocab_size: 8192
+val_fraction: 0.05
+split_seed: 1234

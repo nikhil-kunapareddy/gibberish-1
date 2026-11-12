@@ -1,5 +1,5 @@
 # Data and trained artifacts
-data/
+/data/
 checkpoints/
 runs/
 *.pt
