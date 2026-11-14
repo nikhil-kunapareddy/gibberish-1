@@ -16,7 +16,10 @@ CKPT     ?= runs/pretrain-smoke/ckpt_best.pt
 DEVICE   ?= auto
 ARGS     ?=
 
-.PHONY: help smoke test test-fast data pretrain sft dpo evaluate generate profile clean clean-runs clean-all
+VENV     ?= .venv
+KERNEL   ?= tinystories-lm
+
+.PHONY: help smoke test test-fast data pretrain sft dpo evaluate generate profile kernel clean clean-runs clean-all
 
 help:            ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -50,6 +53,12 @@ generate:        ## Sample from a checkpoint: make generate CKPT=... PROMPT="...
 
 profile:         ## Tokens/sec with and without the KV cache
 	$(PYTHON) scripts/generate.py --checkpoint $(CKPT) --profile
+
+kernel:          ## Create .venv with the project and register it as Jupyter kernel "tinystories-lm"
+	$(PYTHON) -m venv $(VENV)
+	$(VENV)/bin/python -m pip install -q --upgrade pip
+	$(VENV)/bin/python -m pip install -q -e ".[dev,notebook]"
+	$(VENV)/bin/python -m ipykernel install --user --name $(KERNEL) --display-name "Python ($(KERNEL))"
 
 clean:           ## Remove run outputs (keeps the downloaded corpus and prepared data)
 	rm -rf runs/ .pytest_cache/

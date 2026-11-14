@@ -28,6 +28,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
 wandb = ["wandb>=0.16"]
+# notebooks/ only: ipykernel registers the project venv as a Jupyter kernel,
+# matplotlib draws the next-token chart. Not needed by any pipeline stage.
+notebook = ["ipykernel>=6.0", "matplotlib>=3.7"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
