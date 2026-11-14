@@ -13,7 +13,7 @@ from tinystories_lm.model.transformer import Transformer
 from tinystories_lm.pretrain.optim import build_optimizer, split_param_groups
 from tinystories_lm.pretrain.schedule import CosineSchedule
 from tinystories_lm.pretrain.train import fit_single_batch, run_pretrain
-from tinystories_lm.utils.checkpoint import load_checkpoint
+from tinystories_lm.utils.checkpoint import CheckpointManager, load_checkpoint
 from tinystories_lm.utils.config import build_config
 from tinystories_lm.utils.seed import seed_everything
 
@@ -181,6 +181,33 @@ def test_keep_last_k_rotates_old_checkpoints(prepared_dir, meta, tmp_path):
     steps = sorted(p.name for p in out.glob("ckpt_step_*.pt"))
     assert len(steps) == 2, f"keep_last_k=2 but found {steps}"
     assert (out / "ckpt_best.pt").exists() and (out / "ckpt_last.pt").exists()
+
+
+def test_checkpoint_records_best_val_loss_including_its_own(tmp_path):
+    """A checkpoint's `best_val_loss` must include the val loss measured at that step.
+
+    Regression: `save` used to write the file *before* updating the running best,
+    so every checkpoint carried the previous best. On resume that stale value is
+    restored, and a later, worse checkpoint could then overwrite ckpt_best.pt.
+    """
+    cfg = ModelConfig(vocab_size=32, n_layer=1, n_head=2, d_model=16, block_size=8)
+    model = Transformer(cfg)
+    ckpts = CheckpointManager(tmp_path, keep_last_k=10)
+
+    for step, val in [(1, 2.0), (2, None), (3, 1.5), (4, 1.8)]:
+        ckpts.save(step, val_loss=val, model=model, model_config=cfg)
+
+    best = load_checkpoint(ckpts.best_path)
+    assert best["step"] == 3 and best["best_val_loss"] == 1.5
+    assert load_checkpoint(ckpts.step_path(1))["best_val_loss"] == 2.0
+    assert load_checkpoint(ckpts.last_path)["best_val_loss"] == 1.5
+
+    # Resume the way the training loops do, then save a checkpoint worse than
+    # the true best (1.5) but better than the old stale value (2.0).
+    resumed = CheckpointManager(tmp_path, keep_last_k=10)
+    resumed.best_val_loss = load_checkpoint(resumed.last_path)["best_val_loss"]
+    resumed.save(5, val_loss=1.6, model=model, model_config=cfg)
+    assert load_checkpoint(resumed.best_path)["step"] == 3, "a worse checkpoint replaced ckpt_best.pt"
 
 
 def test_stage_rejects_a_vocab_mismatch(prepared_dir, meta, tmp_path):

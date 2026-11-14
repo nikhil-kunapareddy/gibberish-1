@@ -189,6 +189,12 @@ class CheckpointManager:
 
     def save(self, step: int, *, val_loss: float | None = None, alias: str | None = None, **kw) -> Path:
         """Save a step checkpoint, update last/best aliases, rotate old files."""
+        # Update the running best *before* writing, so the file records a best
+        # that includes its own val loss. Resume restores this value; a stale one
+        # would let a later, worse checkpoint overwrite ckpt_best.pt.
+        is_best = val_loss is not None and val_loss < self.best_val_loss
+        if is_best:
+            self.best_val_loss = val_loss
         path = save_checkpoint(
             self.step_path(step),
             step=step,
@@ -197,8 +203,7 @@ class CheckpointManager:
             **kw,
         )
         shutil.copyfile(path, self.last_path)
-        if val_loss is not None and val_loss < self.best_val_loss:
-            self.best_val_loss = val_loss
+        if is_best:
             shutil.copyfile(path, self.best_path)
         if alias:
             shutil.copyfile(path, self.out_dir / f"ckpt_{alias}.pt")
