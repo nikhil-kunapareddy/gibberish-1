@@ -1,0 +1,38 @@
+# Full pretraining of tiny-33m on the full corpus.
+#
+# This is the file the AWS scale-up edits. Nothing in src/ changes: raise
+# batch_size and drop grad_accum_steps on an 8x80GB box, or keep the global
+# batch fixed and let gradient accumulation absorb a smaller per-device batch.
+#   e.g. 8xH100: --pretrain.batch_size=64 --pretrain.grad_accum_steps=1 --pretrain.compile=true
+# TODO(scale): world_size > 1 needs DDP init + gradient all-reduce in train.py
+# and the sharded sampler already stubbed in data/loader.py.
+name: pretrain-full
+data_dir: data/full
+out_dir: runs/pretrain-full
+
+max_steps: 20000
+batch_size: 32
+block_size: 512
+grad_accum_steps: 8      # global batch = 32 * 8 * 512 = 131k tokens
+
+lr: 0.0006
+min_lr_ratio: 0.1
+warmup_steps: 500
+weight_decay: 0.1
+beta1: 0.9
+beta2: 0.95
+grad_clip: 1.0
+
+eval_interval: 500
+eval_iters: 50
+log_interval: 20
+ckpt_interval: 1000
+keep_last_k: 3
+early_ckpt_step: 200
+
+device: auto
+amp: auto
+compile: false
+seed: 1337
+resume: auto             # survive a preempted spot instance
+wandb: false

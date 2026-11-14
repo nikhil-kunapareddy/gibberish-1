@@ -1,0 +1,44 @@
+# Smoke DPO: 20 steps on 64 synthetic preference pairs.
+#
+# This validates mechanics only. See the README and the module docstring: at
+# this scale DPO cannot make the model better, and the preference signal is
+# synthetic by construction.
+name: dpo-smoke
+data_dir: data/smoke
+out_dir: runs/dpo-smoke
+init_from: runs/sft-smoke/ckpt_best.pt
+sampler_ckpt: runs/pretrain-smoke/ckpt_early.pt
+pairs_file: runs/dpo-smoke/dpo_pairs.jsonl
+
+num_pairs: 64
+pair_prompt_tokens: 32
+pair_max_new_tokens: 64
+pair_temperature: 1.5
+pair_top_k: 0
+
+beta: 0.1
+label_smoothing: 0.0
+
+max_steps: 20
+batch_size: 4
+max_seq_len: 256
+grad_accum_steps: 1
+
+lr: 0.000005
+min_lr_ratio: 1.0
+warmup_steps: 2
+weight_decay: 0.0
+grad_clip: 1.0
+
+log_interval: 5
+eval_interval: 10
+eval_iters: 5
+ckpt_interval: 20
+keep_last_k: 1
+
+device: auto
+amp: auto
+compile: false
+seed: 1337
+resume: ""
+wandb: false

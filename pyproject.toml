@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tinystories-lm"
+version = "0.1.0"
+description = "End-to-end TinyStories LLM pipeline: data -> pretrain -> SFT -> DPO -> eval -> inference"
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.1",
+    "tokenizers>=0.15",
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+    "tqdm>=4.65",
+]
+
+# Why each dependency (the spec asks that additions be justified):
+#   torch       - model + training loop. Written by hand; no Trainer/Lightning/Accelerate.
+#   tokenizers  - HuggingFace BPE trainer. Training a byte-level BPE from scratch in pure
+#                 Python is slow enough to blow the smoke-test time budget.
+#   numpy       - uint16 memmap token streams.
+#   pyyaml      - config files.
+#   tqdm        - progress bars for download/tokenize/train.
+# Dataset download uses urllib from the stdlib (HTTP range requests against the
+# HuggingFace CDN), so `datasets`/`huggingface_hub` are NOT required.
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+wandb = ["wandb>=0.16"]
+# notebooks/ only: ipykernel registers the project venv as a Jupyter kernel,
+# matplotlib draws the next-token chart. Not needed by any pipeline stage.
+notebook = ["ipykernel>=6.0", "matplotlib>=3.7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+markers = ["slow: gates that train for a few hundred steps"]

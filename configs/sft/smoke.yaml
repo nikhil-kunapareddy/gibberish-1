@@ -1,0 +1,29 @@
+# Smoke SFT: ~50 steps of instruction tuning on TinyStories-Instruct.
+name: sft-smoke
+data_dir: data/smoke
+out_dir: runs/sft-smoke
+init_from: runs/pretrain-smoke/ckpt_best.pt
+
+max_steps: 50
+batch_size: 8
+max_seq_len: 256
+grad_accum_steps: 1
+
+lr: 0.0003
+min_lr_ratio: 0.1
+warmup_steps: 5
+weight_decay: 0.0
+grad_clip: 1.0
+
+eval_interval: 25
+eval_iters: 10
+log_interval: 10
+ckpt_interval: 50
+keep_last_k: 2
+
+device: auto
+amp: auto
+compile: false
+seed: 1337
+resume: ""
+wandb: false

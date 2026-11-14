@@ -1,0 +1,14 @@
+# The paper's largest TinyStories model, matched on non-embedding parameter
+# count (~32.1M) rather than on architecture -- see README "Deviations".
+#
+# This is why the 8192-vocab tokenizer matters: at d_model=512 a GPT-2 vocab
+# (50257) would put 25.7M params in the embedding alone, more than the rest of
+# the model. At 8192 the embedding is 4.2M.
+name: tiny-33m
+vocab_size: 8192
+n_layer: 10
+n_head: 8
+d_model: 512
+block_size: 512
+dropout: 0.0
+tie_embeddings: true

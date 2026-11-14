@@ -1,0 +1,31 @@
+# Smoke pretraining: ~200 steps on the 1M model. Minutes on a laptop.
+name: pretrain-smoke
+data_dir: data/smoke
+out_dir: runs/pretrain-smoke
+
+max_steps: 200
+batch_size: 16
+block_size: 256
+grad_accum_steps: 1
+
+lr: 0.001
+min_lr_ratio: 0.1
+warmup_steps: 20
+weight_decay: 0.1
+beta1: 0.9
+beta2: 0.95
+grad_clip: 1.0
+
+eval_interval: 50
+eval_iters: 20
+log_interval: 10
+ckpt_interval: 100
+keep_last_k: 2
+early_ckpt_step: 20      # DPO samples its "rejected" continuations from this
+
+device: auto
+amp: auto
+compile: false
+seed: 1337
+resume: ""
+wandb: false
